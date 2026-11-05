@@ -1,0 +1,11 @@
+Grupo: Sereno — 2TDSPI
+Global Solution 2026/2 — CitizenTech
+Disciplina: Advanced Business Development with .NET
+
+RM562156 — Pedro Henrique dos Santos Costa — 2TDSPI
+RM565269 — Eduardo Augusto de Oliveira Souza — 2TDSPI
+RM564673 — Fellipe Costa de Oliveira — 2TDSPI
+RM563009 — Felype Ferreira Maschio — 2TDSPI
+RM563304 — Gustavo Vieira de Matos — 2TDSPI
+
+Repositório:

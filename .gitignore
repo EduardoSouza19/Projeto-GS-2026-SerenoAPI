@@ -1,0 +1,36 @@
+#  Credenciais e configurações locais (NUNCA sobem) 
+appsettings.Development.json
+appsettings.*.local.json
+appsettings.Production.json
+secrets.json
+.env
+*.env
+!dockerfiles/.env.example
+*.pfx
+*.pem
+*.key
+*.publishsettings
+
+#  Build e saída do .NET 
+bin/
+obj/
+publish/
+out/
+*.nupkg
+
+#  Testes e logs 
+TestResults/
+*.trx
+coverage*/
+logs/
+*.log
+
+#  IDEs e sistema 
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.swp
+.DS_Store
+Thumbs.db

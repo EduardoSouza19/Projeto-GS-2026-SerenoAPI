@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerenoAPI", "SerenoAPI.csproj", "{B0F55748-285F-46F2-BD0C-DAECC9FA2E0B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerenoAPI.UnitTests", "SerenoAPI.UnitTests\SerenoAPI.UnitTests.csproj", "{335E49BC-83B6-4A8C-AE26-5ED291F1A6A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerenoAPI.IntegrationTests", "SerenoAPI.IntegrationTests\SerenoAPI.IntegrationTests.csproj", "{8DD75D8E-64BD-422A-B934-C848E8C86357}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B0F55748-285F-46F2-BD0C-DAECC9FA2E0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0F55748-285F-46F2-BD0C-DAECC9FA2E0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0F55748-285F-46F2-BD0C-DAECC9FA2E0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0F55748-285F-46F2-BD0C-DAECC9FA2E0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{335E49BC-83B6-4A8C-AE26-5ED291F1A6A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{335E49BC-83B6-4A8C-AE26-5ED291F1A6A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{335E49BC-83B6-4A8C-AE26-5ED291F1A6A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{335E49BC-83B6-4A8C-AE26-5ED291F1A6A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DD75D8E-64BD-422A-B934-C848E8C86357}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DD75D8E-64BD-422A-B934-C848E8C86357}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DD75D8E-64BD-422A-B934-C848E8C86357}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DD75D8E-64BD-422A-B934-C848E8C86357}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

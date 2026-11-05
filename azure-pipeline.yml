@@ -1,0 +1,102 @@
+# =====================================================================
+# Sereno - API .NET - Pipeline de Build (CI)
+# Roda sozinho a cada merge na main:
+#   restore -> build -> testes xUnit -> publica resultados
+#   -> build da imagem Docker e push no ACR -> artefato "drop"
+# A Release (Web App for Containers) é disparada pelo novo artefato.
+#
+# Antes de rodar, no Azure DevOps:
+#   Project settings > Service connections > Docker Registry (Azure Container Registry)
+#   com o nome: sereno-acr
+# =====================================================================
+
+trigger:
+  branches:
+    include:
+      - main
+
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  buildConfiguration: Release
+  acrServiceConnection: sereno-acr
+  imageRepository: sereno-api
+  dockerfilePath: dockerfiles/Dockerfile
+  tag: $(Build.BuildId)
+
+stages:
+  - stage: Build
+    displayName: Build, testes e imagem
+    jobs:
+      - job: BuildJob
+        displayName: Build e testes
+        steps:
+          - task: UseDotNet@2
+            displayName: Instalar .NET 8
+            inputs:
+              packageType: sdk
+              version: 8.0.x
+
+          - task: DotNetCoreCLI@2
+            displayName: Restore
+            inputs:
+              command: restore
+              projects: SerenoAPI.sln
+
+          - task: DotNetCoreCLI@2
+            displayName: Build
+            inputs:
+              command: build
+              projects: SerenoAPI.sln
+              arguments: --configuration $(buildConfiguration) --no-restore
+
+          - task: DotNetCoreCLI@2
+            displayName: Testes unitários e de integração (xUnit)
+            inputs:
+              command: test
+              projects: |
+                SerenoAPI.UnitTests/SerenoAPI.UnitTests.csproj
+                SerenoAPI.IntegrationTests/SerenoAPI.IntegrationTests.csproj
+              arguments: --configuration $(buildConfiguration) --no-build --logger trx --results-directory $(Agent.TempDirectory)/TestResults
+              publishTestResults: false
+
+          - task: PublishTestResults@2
+            displayName: Publicar resultado dos testes
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: VSTest
+              testResultsFiles: '**/*.trx'
+              searchFolder: $(Agent.TempDirectory)/TestResults
+              testRunTitle: Sereno API - xUnit
+
+          - task: Docker@2
+            displayName: Build e push da imagem no ACR
+            inputs:
+              command: buildAndPush
+              containerRegistry: $(acrServiceConnection)
+              repository: $(imageRepository)
+              dockerfile: $(dockerfilePath)
+              buildContext: $(Build.SourcesDirectory)
+              tags: |
+                $(tag)
+                latest
+
+          - task: CopyFiles@2
+            displayName: Copiar scripts para o artefato
+            inputs:
+              SourceFolder: scripts
+              Contents: '**'
+              TargetFolder: $(Build.ArtifactStagingDirectory)/scripts
+
+          - script: echo "$(imageRepository):$(tag)" > $(Build.ArtifactStagingDirectory)/imagem.txt
+            displayName: Registrar a tag da imagem
+
+          - task: PublishBuildArtifacts@1
+            displayName: Publicar artefato
+            inputs:
+              PathtoPublish: $(Build.ArtifactStagingDirectory)
+              ArtifactName: drop
+              publishLocation: Container

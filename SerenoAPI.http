@@ -1,0 +1,77 @@
+@SerenoAPI_HostAddress = http://localhost:5241
+@token = COLE_O_TOKEN_AQUI
+
+### 1) Gerar token (gestor@sereno.app ou cidadao@sereno.app)
+POST {{SerenoAPI_HostAddress}}/api/auth/token
+Content-Type: application/json
+
+{
+  "email": "gestor@sereno.app"
+}
+
+### 2) Listar estações (paginado; filtros linha e busca)
+GET {{SerenoAPI_HostAddress}}/api/estacoes?page=0&size=10&busca=sé
+Authorization: Bearer {{token}}
+
+### 3) Detalhe da estação com os equipamentos
+GET {{SerenoAPI_HostAddress}}/api/estacoes/1
+Authorization: Bearer {{token}}
+
+### 4) [GESTOR] Cadastrar estação sem latitude/longitude
+### (no lugar de "endereco" você pode mandar só "cep": a API preenche pelo ViaCEP)
+POST {{SerenoAPI_HostAddress}}/api/estacoes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nome": "Brás",
+  "linha": "3-Vermelha, 10-Turquesa",
+  "endereco": "Brás, São Paulo - SP"
+}
+
+### 5) [GESTOR] Cadastrar equipamento
+POST {{SerenoAPI_HostAddress}}/api/equipamentos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "estacaoId": 1,
+  "tipo": "ELEVADOR",
+  "localizacao": "Acesso pela Praça da Sé"
+}
+
+### 6) Reportar elevador parado (repita com a MESMA chave: não duplica)
+POST {{SerenoAPI_HostAddress}}/api/reportes
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Idempotency-Key: 7b1d2c3e-0000-4000-8000-000000000001
+
+{
+  "equipamentoId": 1,
+  "status": "PARADO",
+  "observacao": "Elevador parado desde cedo, com aviso na porta."
+}
+
+### 7) Meus reportes
+GET {{SerenoAPI_HostAddress}}/api/reportes/meus?page=0&size=10
+Authorization: Bearer {{token}}
+
+### 8) Editar meu reporte
+PUT {{SerenoAPI_HostAddress}}/api/reportes/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "FUNCIONANDO",
+  "observacao": "Voltou a funcionar."
+}
+
+### 9) Viagem acessível: só o NOME das estações
+GET {{SerenoAPI_HostAddress}}/api/rotas/acessibilidade?origem=Sé&destino=Paulista
+Authorization: Bearer {{token}}
+
+### 10) Consultar CEP
+GET {{SerenoAPI_HostAddress}}/api/cep/01001-000
+
+### 11) Health Check
+GET {{SerenoAPI_HostAddress}}/health
