@@ -14,12 +14,12 @@ public class Estacao
     public int Id { get; set; }
 
     /// <summary>
-    /// Nome da estação. Ex.: Sé.
+    /// Nome da estação.
     /// </summary>
     public string Nome { get; set; } = string.Empty;
 
     /// <summary>
-    /// Linha(s) que passam pela estação. Ex.: 1-Azul, 3-Vermelha.
+    /// Linha(s) que passam pela estação.
     /// </summary>
     public string Linha { get; set; } = string.Empty;
 

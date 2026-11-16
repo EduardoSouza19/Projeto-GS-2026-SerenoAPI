@@ -65,6 +65,8 @@ public class ReportesControllerIntegrationTests
         // Assert
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.Equal("PARADO", reporte.GetProperty("status").GetString());
+        Assert.False(string.IsNullOrEmpty(reporte.GetProperty("estacaoNome").GetString()));
+        Assert.False(string.IsNullOrEmpty(reporte.GetProperty("tipo").GetString()));
     }
 
     [Fact]

@@ -96,6 +96,7 @@ public class ReportesController : ApiControllerBase
         await _context.SaveChangesAsync();
 
         await _statusService.AtualizarStatusAtualAsync(reporte.EquipamentoId);
+        await CarregarEquipamentoAsync(reporte);
         await _idempotencyService.SalvarAsync(idempotencyKey, UsuarioId, hash, StatusCodes.Status201Created, reporte);
         await _historico.RegistrarAsync(reporte, "CRIADO");
 
@@ -107,6 +108,9 @@ public class ReportesController : ApiControllerBase
     /// <summary>
     /// Meus reportes (paginado), do mais recente para o mais antigo.
     /// </summary>
+    /// <remarks>
+    /// Cada reporte já traz tipo, localizacao, estacaoId e estacaoNome do equipamento.
+    /// </remarks>
     /// <param name="page">Página, começando em 0.</param>
     /// <param name="size">Itens por página (1 a 50).</param>
     /// <response code="200">Página de reportes.</response>
@@ -120,6 +124,8 @@ public class ReportesController : ApiControllerBase
         return Ok(new PaginaResponse<Reporte>
         {
             Items = await consulta
+                .Include(r => r.Equipamento!).ThenInclude(e => e.Estacao)
+                .AsNoTracking()
                 .OrderByDescending(r => r.CriadoEm)
                 .Skip(page * size)
                 .Take(size)
@@ -138,7 +144,10 @@ public class ReportesController : ApiControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Reporte>> GetReporteById(int id)
     {
-        var reporte = await _context.Reportes.FindAsync(id);
+        var reporte = await _context.Reportes
+            .Include(r => r.Equipamento!).ThenInclude(e => e.Estacao)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(r => r.Id == id);
 
         return reporte is null ? NaoEncontrado("Reporte não encontrado.") : Ok(reporte);
     }
@@ -170,6 +179,7 @@ public class ReportesController : ApiControllerBase
         await _context.SaveChangesAsync();
         await _statusService.AtualizarStatusAtualAsync(reporte.EquipamentoId);
         await _historico.RegistrarAsync(reporte, "EDITADO");
+        await CarregarEquipamentoAsync(reporte);
 
         return Ok(reporte);
     }
@@ -202,5 +212,18 @@ public class ReportesController : ApiControllerBase
         await _historico.RegistrarAsync(reporte, "EXCLUIDO");
 
         return NoContent();
+    }
+
+    /// <summary>
+    /// Carrega o equipamento e a estação do reporte, para a resposta trazer tipo, localizacao e estacaoNome.
+    /// </summary>
+    private async Task CarregarEquipamentoAsync(Reporte reporte)
+    {
+        await _context.Entry(reporte).Reference(r => r.Equipamento).LoadAsync();
+
+        if (reporte.Equipamento is not null)
+        {
+            await _context.Entry(reporte.Equipamento).Reference(e => e.Estacao).LoadAsync();
+        }
     }
 }

@@ -4,7 +4,8 @@ using SerenoAPI.Models;
 namespace SerenoAPI.Data;
 
 /// <summary>
-/// Cria as tabelas (se ainda não existirem) e cadastra 5 estações de São Paulo com 12 equipamentos.
+/// Cria as tabelas (se ainda não existirem), cadastra 5 estações de São Paulo com 12 equipamentos
+/// e completa as coordenadas das estações conhecidas.
 /// </summary>
 public static class DataSeeder
 {
@@ -27,6 +28,8 @@ public static class DataSeeder
 
             if (await context.Estacoes.AnyAsync())
             {
+                // Banco já tem estações: só completa as coordenadas que faltam ou estão erradas
+                await CorrigirCoordenadasAsync(context, logger);
                 return;
             }
 
@@ -38,6 +41,32 @@ public static class DataSeeder
         catch (Exception ex)
         {
             logger.LogWarning("Seed não executado: {Erro}. Confira a ConnectionStrings:Default e as tabelas.", ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Preenche latitude/longitude das estações conhecidas que estão vazias ou fora de São Paulo.
+    /// </summary>
+    private static async Task CorrigirCoordenadasAsync(AppDbContext context, ILogger logger)
+    {
+        var estacoes = await context.Estacoes.ToListAsync();
+        var corrigidas = 0;
+
+        foreach (var estacao in estacoes.Where(e => !CoordenadasEstacoes.EhValida(e.Latitude, e.Longitude)))
+        {
+            var conhecida = CoordenadasEstacoes.Buscar(estacao.Nome);
+
+            if (conhecida is null) continue;
+
+            estacao.Latitude = conhecida.Value.Latitude;
+            estacao.Longitude = conhecida.Value.Longitude;
+            corrigidas++;
+        }
+
+        if (corrigidas > 0)
+        {
+            await context.SaveChangesAsync();
+            logger.LogInformation("Seed: coordenadas corrigidas em {Quantidade} estação(ões).", corrigidas);
         }
     }
 
@@ -67,7 +96,15 @@ public static class DataSeeder
     };
 
     private static Estacao Nova(string nome, string linha, string endereco, params Equipamento[] equipamentos) =>
-        new() { Nome = nome, Linha = linha, Endereco = endereco, Equipamentos = equipamentos.ToList() };
+        new()
+        {
+            Nome = nome,
+            Linha = linha,
+            Endereco = endereco,
+            Latitude = CoordenadasEstacoes.Buscar(nome)?.Latitude,
+            Longitude = CoordenadasEstacoes.Buscar(nome)?.Longitude,
+            Equipamentos = equipamentos.ToList()
+        };
 
     private static Equipamento Equip(TipoEquipamento tipo, string localizacao, StatusEquipamento status = StatusEquipamento.FUNCIONANDO) =>
         new()

@@ -60,10 +60,10 @@ public class EstacoesControllerTests
     }
 
     [Fact]
-    public async Task PostEstacao_ShouldCreateStation_WithoutLatitudeAndLongitude()
+    public async Task PostEstacao_ShouldFillCoordinates_WhenStationIsKnown()
     {
         // Arrange
-        await using var context = TestDbContextFactory.Create(nameof(PostEstacao_ShouldCreateStation_WithoutLatitudeAndLongitude));
+        await using var context = TestDbContextFactory.Create(nameof(PostEstacao_ShouldFillCoordinates_WhenStationIsKnown));
         var controller = CriarController(context);
         var request = new EstacaoRequest { Nome = "Luz", Linha = "1-Azul", Endereco = "Luz, São Paulo - SP" };
 
@@ -72,7 +72,8 @@ public class EstacoesControllerTests
 
         // Assert
         Assert.IsType<CreatedAtActionResult>(result.Result);
-        Assert.Null(context.Estacoes.Single().Latitude);
+        Assert.Equal(-23.536902, context.Estacoes.Single().Latitude);
+        Assert.Equal(-46.63367, context.Estacoes.Single().Longitude);
     }
 
     [Fact]

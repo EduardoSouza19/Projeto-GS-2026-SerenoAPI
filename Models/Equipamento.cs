@@ -23,7 +23,7 @@ public class Equipamento
     public TipoEquipamento Tipo { get; set; }
 
     /// <summary>
-    /// Onde fica o equipamento. Ex.: Acesso pela Praça da Sé.
+    /// Onde fica o equipamento dentro da estação.
     /// </summary>
     public string Localizacao { get; set; } = string.Empty;
 

@@ -100,6 +100,10 @@ public class EstacoesController : ApiControllerBase
     /// <summary>
     /// Cadastra uma estação (somente GESTOR). Informe o endereço ou só o CEP.
     /// </summary>
+    /// <remarks>
+    /// Latitude e longitude são opcionais: para as estações conhecidas (Sé, Luz, Paulista, Tatuapé,
+    /// Palmeiras-Barra Funda e Brás) a API preenche sozinha. Coordenadas fora de São Paulo são ignoradas.
+    /// </remarks>
     /// <response code="201">Estação criada.</response>
     /// <response code="400">Dados inválidos.</response>
     /// <response code="403">Somente GESTOR.</response>
@@ -114,13 +118,15 @@ public class EstacoesController : ApiControllerBase
             return ErroValidacao("endereco", "informe o endereço ou um CEP válido");
         }
 
+        var (latitude, longitude) = CoordenadasEstacoes.Resolver(request.Nome, request.Latitude, request.Longitude);
+
         var estacao = new Estacao
         {
             Nome = request.Nome.Trim(),
             Linha = request.Linha.Trim(),
             Endereco = endereco,
-            Latitude = request.Latitude,
-            Longitude = request.Longitude
+            Latitude = latitude,
+            Longitude = longitude
         };
 
         _context.Estacoes.Add(estacao);
@@ -153,11 +159,13 @@ public class EstacoesController : ApiControllerBase
             return ErroValidacao("endereco", "informe o endereço ou um CEP válido");
         }
 
+        var (latitude, longitude) = CoordenadasEstacoes.Resolver(request.Nome, request.Latitude, request.Longitude);
+
         estacao.Nome = request.Nome.Trim();
         estacao.Linha = request.Linha.Trim();
         estacao.Endereco = endereco;
-        estacao.Latitude = request.Latitude;
-        estacao.Longitude = request.Longitude;
+        estacao.Latitude = latitude;
+        estacao.Longitude = longitude;
 
         await _context.SaveChangesAsync();
 

@@ -8,23 +8,19 @@ namespace SerenoAPI.Models;
 /// </summary>
 public class EstacaoRequest
 {
-    /// <example>Sé</example>
     [Required(ErrorMessage = "é obrigatório")]
     [StringLength(100, ErrorMessage = "deve ter no máximo 100 caracteres")]
     public string Nome { get; set; } = string.Empty;
 
-    /// <example>1-Azul, 3-Vermelha</example>
     [Required(ErrorMessage = "é obrigatório")]
     [StringLength(60, ErrorMessage = "deve ter no máximo 60 caracteres")]
     public string Linha { get; set; } = string.Empty;
 
     /// <summary>Endereço. Se vier vazio e o CEP for informado, a API preenche pelo ViaCEP.</summary>
-    /// <example>Praça da Sé, s/n - Sé, São Paulo - SP</example>
     [StringLength(200, ErrorMessage = "deve ter no máximo 200 caracteres")]
     public string? Endereco { get; set; }
 
     /// <summary>CEP opcional para preencher o endereço automaticamente.</summary>
-    /// <example>01001-000</example>
     [RegularExpression(@"^\d{5}-?\d{3}$", ErrorMessage = "deve estar no formato 00000-000")]
     public string? Cep { get; set; }
 
@@ -42,16 +38,13 @@ public class EstacaoRequest
 /// </summary>
 public class EquipamentoRequest
 {
-    /// <example>1</example>
     [Range(1, int.MaxValue, ErrorMessage = "é obrigatório")]
     public int EstacaoId { get; set; }
 
-    /// <example>ELEVADOR</example>
     [Required(ErrorMessage = "é obrigatório (ELEVADOR, ESCADA_ROLANTE, RAMPA ou PLATAFORMA)")]
     [EnumDataType(typeof(TipoEquipamento), ErrorMessage = "valor inválido")]
     public TipoEquipamento? Tipo { get; set; }
 
-    /// <example>Acesso pela Praça da Sé</example>
     [Required(ErrorMessage = "é obrigatório")]
     [StringLength(150, ErrorMessage = "deve ter no máximo 150 caracteres")]
     public string Localizacao { get; set; } = string.Empty;
@@ -96,7 +89,7 @@ public class ReporteUpdateRequest
 /// </summary>
 public class TokenRequest
 {
-    /// <example>gestor@sereno.app</example>
+    /// <example>cidadao@sereno.app</example>
     [Required(ErrorMessage = "é obrigatório")]
     public string Email { get; set; } = string.Empty;
 }

@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace SerenoAPI.Models;
@@ -36,6 +37,30 @@ public class Reporte
     /// Data do reporte (UTC).
     /// </summary>
     public DateTime CriadoEm { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// Tipo do equipamento (vem do equipamento, não é gravado na tabela).
+    /// </summary>
+    [NotMapped]
+    public TipoEquipamento? Tipo => Equipamento?.Tipo;
+
+    /// <summary>
+    /// Localização do equipamento dentro da estação.
+    /// </summary>
+    [NotMapped]
+    public string? Localizacao => Equipamento?.Localizacao;
+
+    /// <summary>
+    /// ID da estação do equipamento.
+    /// </summary>
+    [NotMapped]
+    public int? EstacaoId => Equipamento?.EstacaoId;
+
+    /// <summary>
+    /// Nome da estação do equipamento.
+    /// </summary>
+    [NotMapped]
+    public string? EstacaoNome => Equipamento?.Estacao?.Nome;
 
     /// <summary>
     /// Equipamento reportado.

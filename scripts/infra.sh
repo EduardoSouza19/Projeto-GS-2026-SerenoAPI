@@ -97,7 +97,7 @@ az webapp config appsettings set \
   --settings \
     WEBSITES_PORT=8080 \
     ASPNETCORE_ENVIRONMENT="Production" \
-    AuthDev__Habilitado="true" \
+    AuthDev__Habilitado="false" \
     ConnectionStrings__Default="User Id=sereno;Password=${ORACLE_PASSWORD};Data Source=${ORACLE_HOST}:1521/XEPDB1" \
     MongoDbSettings__ConnectionString="mongodb://sereno:${MONGO_PASSWORD}@${MONGO_HOST}:27017" \
     MongoDbSettings__DatabaseName="sereno" \
