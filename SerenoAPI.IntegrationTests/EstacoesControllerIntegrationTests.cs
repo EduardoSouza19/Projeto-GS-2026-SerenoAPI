@@ -91,13 +91,15 @@ public class EstacoesControllerIntegrationTests
     }
 
     [Fact]
-    public async Task Health_ShouldListOracleAndMongoDb()
+    public async Task Health_ShouldListApiDatabasesAndExternalService()
     {
         // Act (nos testes não há Oracle real, então pode voltar 503: o importante é monitorar tudo)
         var body = await (await _factory.CreateClient().GetAsync("/health")).Content.ReadAsStringAsync();
 
         // Assert
+        Assert.Contains("\"api\"", body);
         Assert.Contains("\"oracle\"", body);
         Assert.Contains("\"mongodb\"", body);
+        Assert.Contains("\"viacep\"", body);
     }
 }

@@ -63,12 +63,12 @@ O cidadão reporta se um equipamento de acessibilidade da estação está **FUNC
 
 | # | Requisito | Pts | Onde está |
 |---|---|---|---|
-| 1 | API RESTful com validações, códigos HTTP e Swagger/OpenAPI | 20 | `Controllers/`, `Models/Requests.cs` (DataAnnotations), erro padrão no `Program.cs`, Swagger e Scalar |
+| 1 | API RESTful com validações, códigos HTTP e Swagger/OpenAPI | 20 | `Controllers/` (cada endpoint documenta suas respostas com `[ProducesResponseType]`), `Models/Requests.cs` (DataAnnotations), erro padrão no `Program.cs`, Swagger e Scalar |
 | 2 | JWT protegendo endpoints | 20 | `Program.cs` (AddJwtBearer), `[Authorize]` e política `Gestor` |
 | 3 | Idempotência | 15 | `Services/IdempotencyService.cs` + `POST /api/reportes` com header `Idempotency-Key` |
 | 4 | Rate Limiting com 429 | 15 | `Program.cs`: 100 req/min no geral e 10 reportes/min por usuário, com `Retry-After` |
-| 5 | Testes unitários e de integração (xUnit) | 20 | `SerenoAPI.UnitTests/` (25 testes) e `SerenoAPI.IntegrationTests/` (14 testes) |
-| 6 | Health Checks | 10 | `/health`: **Oracle** e **MongoDB** |
+| 5 | Testes unitários e de integração (xUnit) | 20 | `SerenoAPI.UnitTests/` (25 testes) e `SerenoAPI.IntegrationTests/` (15 testes) |
+| 6 | Health Checks | 10 | `/health`: **API**, bancos (**Oracle** e **MongoDB**) e serviço externo (**ViaCEP**) |
 
 ---
 
@@ -160,7 +160,7 @@ SerenoAPI/
 ├── Migrations/      Migration inicial do EF Core (Oracle)
 ├── Models/          Entidades, enums, requests e responses
 ├── Repositories/    MongoHistoricoRepository
-├── Services/        StatusService, IdempotencyService, TokenService, ViaCepService, MongoHealthCheck
+├── Services/        StatusService, IdempotencyService, TokenService, ViaCepService, MongoHealthCheck, ViaCepHealthCheck
 ├── Settings/        MongoDbSettings
 ├── SettingsJWT/     JwtSettings
 ├── Telemetry/       Métricas do OpenTelemetry
@@ -197,7 +197,7 @@ Todas as rotas começam com `/api`, menos `/health`, `/swagger` e `/scalar`.
 | GET | `/api/historico?equipamentoId=` | 👮 | Histórico de reportes no MongoDB |
 | GET | `/api/MongoTest` | público | Testa a conexão com o MongoDB |
 | POST | `/api/auth/token` | só em desenvolvimento | `{email}`: token de teste para `cidadao@sereno.app` ou `gestor@sereno.app` |
-| GET | `/health` | público | Oracle e MongoDB |
+| GET | `/health` | público | API, Oracle, MongoDB e ViaCEP |
 
 **Valores aceitos:**
 
@@ -206,7 +206,7 @@ Todas as rotas começam com `/api`, menos `/health`, `/swagger` e `/scalar`.
 | `tipo` | `ELEVADOR`, `ESCADA_ROLANTE`, `RAMPA`, `PLATAFORMA` |
 | `status` | `FUNCIONANDO`, `PARADO`, `EM_MANUTENCAO` |
 
-**Swagger:** os exemplos de corpo aparecem só nas requisições que o cidadão envia (reporte, edição de reporte e token de teste). As rotas do gestor mostram o modelo sem valores de exemplo.
+**Swagger:** cada endpoint mostra os parâmetros, o modelo de entrada, o modelo de saída e **todas as respostas HTTP possíveis** (200/201/204, 400, 401, 403, 404, 409, 422, 429, 500, 503), com o formato de erro do Contrato. Os exemplos de corpo aparecem só nas requisições que o cidadão envia (reporte, edição de reporte e token de teste).
 
 ---
 
@@ -303,12 +303,29 @@ Ao passar do limite, a resposta é **429** com o header `Retry-After` (em segund
 
 ## Health Check
 
-`GET /health` (público) verifica **Oracle** (`AspNetCore.HealthChecks.Oracle`) e **MongoDB** (ping).
+`GET /health` (público) monitora a API, os bancos e o serviço externo usado:
+
+| Check | Tag | O que verifica | Se falhar |
+|---|---|---|---|
+| `api` | `api` | A própria API respondendo | — |
+| `oracle` | `db` | Conexão com o Oracle (`AspNetCore.HealthChecks.Oracle`) | `Unhealthy` |
+| `mongodb` | `db` | Ping no MongoDB | `Unhealthy` |
+| `viacep` | `externo` | Consulta de um CEP no ViaCEP | `Degraded` (a API continua funcionando; só o cadastro por CEP fica sem endereço automático) |
 
 | Situação | Resposta |
 |---|---|
 | Tudo funcionando | **200** `Healthy` |
+| Só o ViaCEP com problema | **200** `Degraded` |
 | Algum banco fora do ar | **503** `Unhealthy`, com o nome do check que falhou |
+
+```json
+{ "status": "Healthy", "duracaoMs": 120,
+  "checks": [
+    { "name": "api", "status": "Healthy", "description": "API no ar.", "duracaoMs": 1, "tags": ["api"] },
+    { "name": "oracle", "status": "Healthy", "description": null, "duracaoMs": 45, "tags": ["db"] },
+    { "name": "mongodb", "status": "Healthy", "description": "MongoDB respondendo.", "duracaoMs": 30, "tags": ["db"] },
+    { "name": "viacep", "status": "Healthy", "description": "ViaCEP respondendo.", "duracaoMs": 90, "tags": ["externo"] } ] }
+```
 
 ---
 
@@ -527,7 +544,7 @@ O script faz o primeiro build da imagem no ACR e configura as variáveis de ambi
 dotnet test
 ```
 
-Resultado esperado: **39 testes passando** (25 unitários e 14 de integração).
+Resultado esperado: **40 testes passando** (25 unitários e 15 de integração).
 
 ### Unitários
 
@@ -543,7 +560,8 @@ Resultado esperado: **39 testes passando** (25 unitários e 14 de integração).
 | Arquivo | O que testa |
 |---|---|
 | `ReportesControllerIntegrationTests` | 401; 400 sem chave; 201 com `tipo` e `estacaoNome`; reenvio não duplica; 409; status inválido 400; **429** no 11º; 403 ao excluir reporte alheio |
-| `EstacoesControllerIntegrationTests` | 401; página no formato do Contrato; 403 para CIDADAO; CRUD completo como GESTOR; rota pelo nome; `/health` com Oracle e MongoDB |
+| `EstacoesControllerIntegrationTests` | 401; página no formato do Contrato; 403 para CIDADAO; CRUD completo como GESTOR; rota pelo nome; `/health` com API, Oracle, MongoDB e ViaCEP |
+| `SwaggerIntegrationTests` | O Swagger documenta as respostas 201, 400, 401, 409, 422 e 429 do `POST /api/reportes` |
 
 ---
 
@@ -557,6 +575,7 @@ Resultado esperado: **39 testes passando** (25 unitários e 14 de integração).
 | 401 com o token do app | O `JWT_SECRET` do Java e do .NET são diferentes, ou o Java decodifica o segredo em Base64 |
 | 404 em `/api/auth/token` na nuvem | Esperado: o token de teste fica desligado em produção. Use o login do Java |
 | `/health` com mongodb Unhealthy | Confira a string do Atlas e o `0.0.0.0/0` no Network Access |
+| `/health` com viacep Degraded | O ViaCEP está fora do ar ou lento; a API continua funcionando |
 | Primeira chamada no Render demora | Plano gratuito acordando; espere até 50 segundos |
 | App não acessa a API local | Use o IP do computador e `applicationUrl` em `0.0.0.0` (passo 6) |
 

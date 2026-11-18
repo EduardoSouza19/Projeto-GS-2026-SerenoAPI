@@ -90,7 +90,7 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "bearer",
         BearerFormat = "JWT",
         In = Microsoft.OpenApi.ParameterLocation.Header,
-        Description = "Cole o token gerado em POST /api/auth/token (ou o token do login do app)."
+        Description = "Cole o token do login da API Java (POST /api/auth/login). Em desenvolvimento, use POST /api/auth/token."
     });
 
     options.AddSecurityRequirement(document =>
@@ -119,9 +119,11 @@ builder.Services.AddHttpClient<ViaCepService>(client =>
     client.Timeout = TimeSpan.FromSeconds(5);
 });
 
-//  Health Checks: Oracle + MongoDB 
+//  Health Checks: API + bancos (Oracle e MongoDB) + serviço externo (ViaCEP)
 var healthChecks = builder.Services.AddHealthChecks()
-    .AddCheck<MongoHealthCheck>("mongodb", tags: new[] { "db" });
+    .AddCheck("api", () => HealthCheckResult.Healthy("API no ar."), tags: new[] { "api" })
+    .AddCheck<MongoHealthCheck>("mongodb", tags: new[] { "db" })
+    .AddCheck<ViaCepHealthCheck>("viacep", tags: new[] { "externo" });
 
 if (string.IsNullOrWhiteSpace(connectionString))
 {
@@ -274,11 +276,14 @@ app.MapHealthChecks("/health", new HealthCheckOptions
         var result = new
         {
             status = report.Status.ToString(),
+            duracaoMs = Math.Round(report.TotalDuration.TotalMilliseconds),
             checks = report.Entries.Select(entry => new
             {
                 name = entry.Key,
                 status = entry.Value.Status.ToString(),
-                description = entry.Value.Description
+                description = entry.Value.Description ?? entry.Value.Exception?.Message,
+                duracaoMs = Math.Round(entry.Value.Duration.TotalMilliseconds),
+                tags = entry.Value.Tags
             })
         };
 

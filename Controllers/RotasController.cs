@@ -8,6 +8,7 @@ using SerenoAPI.Services;
 namespace SerenoAPI.Controllers;
 
 [ApiController]
+[ProducesResponseType(typeof(ErroResponse), StatusCodes.Status401Unauthorized)]
 [Route("api/rotas")]
 [Authorize]
 public class RotasController : ApiControllerBase
@@ -31,6 +32,9 @@ public class RotasController : ApiControllerBase
     /// <response code="200">Resultado da viagem.</response>
     /// <response code="400">Origem ou destino não informados.</response>
     /// <response code="404">Estação não encontrada.</response>
+    [ProducesResponseType(typeof(RotaAcessivelResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status404NotFound)]
     [HttpGet("acessibilidade")]
     public async Task<ActionResult<RotaAcessivelResponse>> VerificarRota(string? origem, string? destino)
     {

@@ -72,3 +72,24 @@ public class ViaCepResponse
     public string? Localidade { get; set; }
     public string? Uf { get; set; }
 }
+
+/// <summary>
+/// Resposta do POST /api/auth/token (somente desenvolvimento).
+/// </summary>
+public class TokenResponse
+{
+    public string Token { get; set; } = string.Empty;
+    public DateTime ExpiraEm { get; set; }
+    public UsuarioTokenResponse Usuario { get; set; } = new();
+}
+
+/// <summary>
+/// Usuário dono do token.
+/// </summary>
+public class UsuarioTokenResponse
+{
+    public int Id { get; set; }
+    public string Nome { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Papel { get; set; } = string.Empty;
+}

@@ -6,6 +6,9 @@ namespace SerenoAPI.Controllers;
 /// <summary>
 /// Base dos controllers: devolve erros e lê o usuário do token.
 /// </summary>
+[Produces("application/json")]
+[ProducesResponseType(typeof(ErroResponse), StatusCodes.Status429TooManyRequests)]
+[ProducesResponseType(typeof(ErroResponse), StatusCodes.Status500InternalServerError)]
 public abstract class ApiControllerBase : ControllerBase
 {
     /// <summary>

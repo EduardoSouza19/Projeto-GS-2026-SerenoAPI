@@ -6,6 +6,7 @@ using SerenoAPI.Models;
 namespace SerenoAPI.Controllers;
 
 [ApiController]
+[ProducesResponseType(typeof(ErroResponse), StatusCodes.Status401Unauthorized)]
 [Route("api/equipamentos")]
 [Authorize]
 public class EquipamentosController : ApiControllerBase
@@ -22,6 +23,8 @@ public class EquipamentosController : ApiControllerBase
     /// </summary>
     /// <response code="200">Equipamento encontrado.</response>
     /// <response code="404">Equipamento não encontrado.</response>
+    [ProducesResponseType(typeof(Equipamento), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status404NotFound)]
     [HttpGet("{id}")]
     public async Task<ActionResult<Equipamento>> GetEquipamentoById(int id)
     {
@@ -37,6 +40,10 @@ public class EquipamentosController : ApiControllerBase
     /// <response code="400">Dados inválidos.</response>
     /// <response code="403">Somente GESTOR.</response>
     /// <response code="422">A estação informada não existe.</response>
+    [ProducesResponseType(typeof(Equipamento), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status422UnprocessableEntity)]
     [HttpPost]
     [Authorize(Policy = "Gestor")]
     public async Task<ActionResult<Equipamento>> PostEquipamento(EquipamentoRequest request)
@@ -68,6 +75,11 @@ public class EquipamentosController : ApiControllerBase
     /// <response code="200">Equipamento atualizado.</response>
     /// <response code="404">Equipamento não encontrado.</response>
     /// <response code="422">A estação informada não existe.</response>
+    [ProducesResponseType(typeof(Equipamento), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status422UnprocessableEntity)]
     [HttpPut("{id}")]
     [Authorize(Policy = "Gestor")]
     public async Task<ActionResult<Equipamento>> PutEquipamento(int id, EquipamentoRequest request)
@@ -98,6 +110,9 @@ public class EquipamentosController : ApiControllerBase
     /// </summary>
     /// <response code="204">Equipamento removido.</response>
     /// <response code="404">Equipamento não encontrado.</response>
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status404NotFound)]
     [HttpDelete("{id}")]
     [Authorize(Policy = "Gestor")]
     public async Task<IActionResult> DeleteEquipamento(int id)

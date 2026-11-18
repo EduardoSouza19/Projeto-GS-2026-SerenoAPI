@@ -25,6 +25,10 @@ public class CepController : ApiControllerBase
     /// <response code="400">CEP inválido.</response>
     /// <response code="404">CEP não encontrado.</response>
     /// <response code="503">ViaCEP fora do ar.</response>
+    [ProducesResponseType(typeof(ViaCepResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status503ServiceUnavailable)]
     [HttpGet("{cep}")]
     public async Task<ActionResult<ViaCepResponse>> GetEndereco(string cep)
     {

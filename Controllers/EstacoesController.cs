@@ -8,6 +8,7 @@ using SerenoAPI.Services;
 namespace SerenoAPI.Controllers;
 
 [ApiController]
+[ProducesResponseType(typeof(ErroResponse), StatusCodes.Status401Unauthorized)]
 [Route("api/estacoes")]
 [Authorize]
 public class EstacoesController : ApiControllerBase
@@ -30,6 +31,7 @@ public class EstacoesController : ApiControllerBase
     /// <param name="busca">Busca pelo nome ou endereço. Ex.: Sé.</param>
     /// <response code="200">Página de estações.</response>
     /// <response code="401">Token não informado ou inválido.</response>
+    [ProducesResponseType(typeof(PaginaResponse<Estacao>), StatusCodes.Status200OK)]
     [HttpGet]
     public async Task<ActionResult<PaginaResponse<Estacao>>> GetEstacoes(
         int page = 0, int size = 10, string? linha = null, string? busca = null)
@@ -79,6 +81,8 @@ public class EstacoesController : ApiControllerBase
     /// <param name="id">ID da estação.</param>
     /// <response code="200">Estação encontrada.</response>
     /// <response code="404">Estação não encontrada.</response>
+    [ProducesResponseType(typeof(Estacao), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status404NotFound)]
     [HttpGet("{id}")]
     public async Task<ActionResult<Estacao>> GetEstacaoById(int id)
     {
@@ -107,6 +111,9 @@ public class EstacoesController : ApiControllerBase
     /// <response code="201">Estação criada.</response>
     /// <response code="400">Dados inválidos.</response>
     /// <response code="403">Somente GESTOR.</response>
+    [ProducesResponseType(typeof(Estacao), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status403Forbidden)]
     [HttpPost]
     [Authorize(Policy = "Gestor")]
     public async Task<ActionResult<Estacao>> PostEstacao(EstacaoRequest request)
@@ -141,6 +148,10 @@ public class EstacoesController : ApiControllerBase
     /// </summary>
     /// <response code="200">Estação atualizada.</response>
     /// <response code="404">Estação não encontrada.</response>
+    [ProducesResponseType(typeof(Estacao), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status404NotFound)]
     [HttpPut("{id}")]
     [Authorize(Policy = "Gestor")]
     public async Task<ActionResult<Estacao>> PutEstacao(int id, EstacaoRequest request)
@@ -177,6 +188,9 @@ public class EstacoesController : ApiControllerBase
     /// </summary>
     /// <response code="204">Estação removida.</response>
     /// <response code="404">Estação não encontrada.</response>
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status404NotFound)]
     [HttpDelete("{id}")]
     [Authorize(Policy = "Gestor")]
     public async Task<IActionResult> DeleteEstacao(int id)

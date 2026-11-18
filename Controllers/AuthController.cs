@@ -36,6 +36,9 @@ public class AuthController : ApiControllerBase
     /// </remarks>
     /// <response code="200">Token gerado. Copie e cole no botão Authorize.</response>
     /// <response code="404">Desligado em produção ou e-mail não é de teste.</response>
+    [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status404NotFound)]
     [HttpPost("token")]
     [AllowAnonymous]
     public IActionResult GerarTokenDesenvolvimento([FromBody] TokenRequest request)
@@ -54,11 +57,17 @@ public class AuthController : ApiControllerBase
 
         var (token, expiraEm) = _tokenService.GerarToken(usuario.Id, request.Email.Trim().ToLower(), usuario.Papel);
 
-        return Ok(new
+        return Ok(new TokenResponse
         {
-            token,
-            expiraEm,
-            usuario = new { id = usuario.Id, nome = usuario.Nome, email = request.Email.Trim().ToLower(), papel = usuario.Papel }
+            Token = token,
+            ExpiraEm = expiraEm,
+            Usuario = new UsuarioTokenResponse
+            {
+                Id = usuario.Id,
+                Nome = usuario.Nome,
+                Email = request.Email.Trim().ToLower(),
+                Papel = usuario.Papel
+            }
         });
     }
 }

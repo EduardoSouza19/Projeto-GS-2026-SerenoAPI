@@ -11,6 +11,7 @@ using SerenoAPI.Telemetry;
 namespace SerenoAPI.Controllers;
 
 [ApiController]
+[ProducesResponseType(typeof(ErroResponse), StatusCodes.Status401Unauthorized)]
 [Route("api/reportes")]
 [Authorize]
 public class ReportesController : ApiControllerBase
@@ -45,6 +46,11 @@ public class ReportesController : ApiControllerBase
     /// <response code="409">Mesma Idempotency-Key com corpo diferente.</response>
     /// <response code="422">O equipamento informado não existe.</response>
     /// <response code="429">Muitos reportes. Aguarde o tempo do header Retry-After.</response>
+    [ProducesResponseType(typeof(Reporte), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status429TooManyRequests)]
     [HttpPost]
     [EnableRateLimiting("reportes")]
     public async Task<IActionResult> PostReporte(ReporteRequest request,
@@ -114,6 +120,7 @@ public class ReportesController : ApiControllerBase
     /// <param name="page">Página, começando em 0.</param>
     /// <param name="size">Itens por página (1 a 50).</param>
     /// <response code="200">Página de reportes.</response>
+    [ProducesResponseType(typeof(PaginaResponse<Reporte>), StatusCodes.Status200OK)]
     [HttpGet("meus")]
     public async Task<ActionResult<PaginaResponse<Reporte>>> GetMeusReportes(int page = 0, int size = 10)
     {
@@ -141,6 +148,8 @@ public class ReportesController : ApiControllerBase
     /// </summary>
     /// <response code="200">Reporte encontrado.</response>
     /// <response code="404">Reporte não encontrado.</response>
+    [ProducesResponseType(typeof(Reporte), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status404NotFound)]
     [HttpGet("{id}")]
     public async Task<ActionResult<Reporte>> GetReporteById(int id)
     {
@@ -158,6 +167,10 @@ public class ReportesController : ApiControllerBase
     /// <response code="200">Reporte atualizado.</response>
     /// <response code="403">Você não é o dono do reporte.</response>
     /// <response code="404">Reporte não encontrado.</response>
+    [ProducesResponseType(typeof(Reporte), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status404NotFound)]
     [HttpPut("{id}")]
     public async Task<ActionResult<Reporte>> PutReporte(int id, ReporteUpdateRequest request)
     {
@@ -190,6 +203,9 @@ public class ReportesController : ApiControllerBase
     /// <response code="204">Reporte excluído.</response>
     /// <response code="403">Você não é o dono do reporte.</response>
     /// <response code="404">Reporte não encontrado.</response>
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status404NotFound)]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteReporte(int id)
     {

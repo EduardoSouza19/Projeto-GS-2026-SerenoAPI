@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SerenoAPI.Repositories;
 
+using SerenoAPI.Models;
+
 namespace SerenoAPI.Controllers;
 
 [ApiController]
@@ -19,6 +21,8 @@ public class MongoTestController : ApiControllerBase
     /// <summary>
     /// Testa a conexão com o MongoDB (database "sereno").
     /// </summary>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErroResponse), StatusCodes.Status503ServiceUnavailable)]
     [HttpGet]
     public async Task<IActionResult> TestConnection()
     {
