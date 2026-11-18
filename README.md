@@ -4,6 +4,16 @@
 
 **Global Solution 2026/2 — CitizenTech · FIAP · Advanced Business Development with .NET · 2TDSPI**
 
+| Link | Endereço |
+|---|---|
+| Repositório | https://github.com/EduardoSouza19/Projeto-GS-2026-SerenoAPI |
+| API publicada (Render) | https://projeto-gs-2026-serenoapi.onrender.com |
+| Swagger | https://projeto-gs-2026-serenoapi.onrender.com/swagger |
+| Scalar | https://projeto-gs-2026-serenoapi.onrender.com/scalar/v1 |
+| Health Check | https://projeto-gs-2026-serenoapi.onrender.com/health |
+
+> Plano gratuito do Render: se a API ficou parada por 15 minutos, a primeira chamada pode levar até 50 segundos para responder.
+
 ---
 
 ## Sumário
@@ -427,8 +437,8 @@ O Render builda a imagem pelo Dockerfile a cada push na `main` e já entrega HTT
 
 ### 3. Conferir
 
-- `https://SEU-SERVICO.onrender.com/health` → `Healthy`
-- `https://SEU-SERVICO.onrender.com/swagger`
+- `https://projeto-gs-2026-serenoapi.onrender.com/health` → `Healthy`
+- `https://projeto-gs-2026-serenoapi.onrender.com/swagger`
 
 ### 4. Atualizar
 
@@ -443,7 +453,7 @@ O Render builda a imagem pelo Dockerfile a cada push na `main` e já entrega HTT
 
 | Item | Valor |
 |---|---|
-| Base URL | `https://SEU-SERVICO.onrender.com/api` |
+| Base URL | `https://projeto-gs-2026-serenoapi.onrender.com/api` |
 | Autenticação | `Authorization: Bearer <token do login Java>` |
 | Timeout recomendado | 60 segundos (por causa do plano gratuito) |
 
