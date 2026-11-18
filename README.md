@@ -600,4 +600,4 @@ Resultado esperado: **40 testes passando** (25 unitários e 15 de integração).
 
 ## Uso de IA Generativa
 
-O grupo usou o **Claude (Anthropic)** como apoio para adaptar a estrutura do projeto do Challenge, revisar as regras de idempotência, rate limiting e health checks, montar a lista de coordenadas das estações e escrever a documentação. O código foi revisado, executado e testado pelo grupo, que sabe explicar cada parte na apresentação.
+O grupo usou o **Claude (Anthropic)** como apoio para adaptar a estrutura do projeto do Challenge, revisar as regras de idempotência, rate limiting e health checks, montar a lista de coordenadas das estações e escrever a documentação. O código foi revisado, executado e testado pelo grupo.
